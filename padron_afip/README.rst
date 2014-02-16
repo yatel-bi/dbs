@@ -7,8 +7,7 @@ Descripcion de la red
 ---------------------
 
 La red esta estructurada de tal forma que cada haplotipo (nodo) es uno de los
-posibles combinaciones de los impuestos IVA y Ganancias mas un contador con
-la cantidad de ocurrencias de esa combinación.
+posibles combinaciones de los impuestos IVA y Ganancias.
 
 (Los valores posibles de cada uno de estos impuestos se listan en
 http://www.sistemasagiles.com.ar/trac/wiki/PadronContribuyentesAFIP#M%C3%A9todos)

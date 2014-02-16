@@ -10,7 +10,7 @@
 
 import sys, os
 
-from yatel import etl, dom
+from yatel import etl, dom, weight
 
 import sqlalchemy as sa
 
@@ -62,14 +62,25 @@ class PadronAfipETL(etl.ETL):
         self.table = self.src_meta.tables["padron"]
 
     def haplotype_gen(self):
-        import ipdb; ipdb.set_trace()
-        return []
+        self.haps = []
+        query = sa.sql.select([
+            self.table.c[u'imp_ganancias'], self.table.c[u'imp_iva']
+        ]).distinct()
+        for row in self.src_engine.execute(query):
+            hap_id = u"{}_{}".format(row.imp_iva, row.imp_ganancias)
+            hap = dom.Haplotype(hap_id, **dict(row))
+            self.haps.append(hap)
+            yield hap
 
     def edge_gen(self):
-        return []
+        for haps, wgh in weight.weights("ham", self.haps):
+            yield dom.Edge(wgh, [h.hap_id for h in haps])
 
     def fact_gen(self):
-        return []
+        query = sa.sql.select([self.table])
+        for row in self.src_engine.execute(query):
+            hap_id = u"{}_{}".format(row.imp_iva, row.imp_ganancias)
+            yield dom.Fact(hap_id, **dict(row))
 
 
 #===============================================================================
