@@ -57,7 +57,8 @@ Archivos
     - ``padronafip_etl.py`` ETL que genera la red basada en el padrón utilizando
       ``lib/padron.py``
     - ``padron_afip.yjf`` NW-OLAP generada con el etl. (CONGELADA AL 2014-02-16)
-    - ``padron_afip.yjf`` NW-OLAP en formato YJF (Yatel Json Format)
+    - ``padron_afip.yxf.zip`` NW-OLAP en formato YXF (Yatel XML Format)
+      comprimida.
 
 
 
