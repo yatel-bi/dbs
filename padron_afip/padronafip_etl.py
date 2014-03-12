@@ -47,7 +47,7 @@ if not os.path.exists(TEMP_DIR):
 # PUT YOUT ETLs HERE
 #===============================================================================
 
-class PadronAfipETL(etl.ETL):
+class ETL(etl.BaseETL):
 
     def setup(self):
         p = padron.PadronAFIP()

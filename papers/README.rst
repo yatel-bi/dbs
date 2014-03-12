@@ -1,14 +1,13 @@
 Padrón  Contribuyentes AFIP
 ===========================
 
-Este proyecto crea OLAPNW con los datos del KDD CUP:
-    http://www.kaggle.com/c/kdd-cup-2013-author-paper-identification-challenge/data
+Este proyecto crea OLAPNW con los datos del padrón electoral del AFIP.
 
 Descripción de la red
 ---------------------
 
 La red esta estructurada de tal forma que cada haplotipo (nodo) es uno de los
-
+posibles combinaciones de los impuestos IVA y Ganancias.
 
 (Los valores posibles de cada uno de estos impuestos se listan en
 http://www.sistemasagiles.com.ar/trac/wiki/PadronContribuyentesAFIP#M%C3%A9todos)
