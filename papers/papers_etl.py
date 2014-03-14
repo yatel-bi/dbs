@@ -75,21 +75,28 @@ class ETL(etl.BaseETL):
         paper = self.src_meta.tables["paper"]
         paperauthor = self.src_meta.tables["paperauthor"]
 
-        for hap_id0, hap_id1 in itertools.combinations(self.haps, 2):
-                query = sql.select(
-                    [func.count(paper.c.id)]
-                ).select_from(
-                    paper.join(paperauthor, paper.c.id == paperauthor.c.paperid)
-                ).where(
-                    sql.or_(
-                        paperauthor.c.authorid == hap_id0,
-                        paperauthor.c.authorid == hap_id1
-                    )
-                ).distinct()
-                count = self.src_engine.execute(query).fetchone()[0]
-                if count:
-                    yield dom.Edge(count, (hap_id0, hap_id1))
+        def _papers_ids(authorid):
+            query = sql.select(
+                [paperauthor.c.paperid]
+            ).where(
+                paperauthor.c.authorid == authorid,
+            ).distinct()
+            return frozenset(row[0] for row in self.src_engine.execute(query))
 
+        paper_buff = {}
+        import time
+        a = time.time()
+        for hap_id0, hap_id1 in itertools.combinations(self.haps, 2):
+            if hap_id0 not in paper_buff:
+                paper_buff[hap_id0] = _papers_ids(hap_id0)
+            if hap_id1 not in paper_buff:
+                paper_buff[hap_id1] = _papers_ids(hap_id1)
+            papers0 = paper_buff[hap_id0]
+            papers1 = paper_buff[hap_id1]
+            count = len(papers0.intersection(papers1))
+            if count:
+                yield dom.Edge(count, (hap_id0, hap_id1))
+        print time.time() -a
     def fact_gen(self):
         return ()
             #~ for hap_id in self.haps:
