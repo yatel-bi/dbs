@@ -68,8 +68,6 @@ class ETL(etl.BaseETL):
             )
             self.haps.append(hap.hap_id)
             yield hap
-            if len(self.haps) == 100:
-                break
 
     def edge_gen(self):
         paper = self.src_meta.tables["paper"]
@@ -84,8 +82,6 @@ class ETL(etl.BaseETL):
             return frozenset(row[0] for row in self.src_engine.execute(query))
 
         paper_buff = {}
-        import time
-        a = time.time()
         for hap_id0, hap_id1 in itertools.combinations(self.haps, 2):
             if hap_id0 not in paper_buff:
                 paper_buff[hap_id0] = _papers_ids(hap_id0)
@@ -96,27 +92,70 @@ class ETL(etl.BaseETL):
             count = len(papers0.intersection(papers1))
             if count:
                 yield dom.Edge(count, (hap_id0, hap_id1))
-        print time.time() -a
+
     def fact_gen(self):
-        return ()
-            #~ for hap_id in self.haps:
-                #~ data = {}
+        for hap_id in self.haps:
+            data = {}
 #~
-                #~ paperauthor_query = sql.select([
-                    #~ self.src_meta.tables["paperauthor"]
-                #~ ]).where(
-                    #~ self.src_meta.tables["paperauthor"].c["authorid"]==hap_id
-                #~ ).distinct()
-#~
-                #~ for pa_row in self.src_engine.execute(paperauthor_query):
-                    #~ data["paperauthor_name"] = row["Name"]
-                    #~ data["paperauthor_affiliation"] = row["Affiliation"]
-#~
-                    #~ paper = sql.select(
-                        #~ self.src_meta.tables["paper"]
-                    #~ ).where(
-                        #~ self.src_meta.tables["paper"].c["id"]==row["paperID"]
-                    #~ )
+            paperauthor_query = sql.select([
+                self.src_meta.tables["paperauthor"]
+            ]).where(
+                self.src_meta.tables["paperauthor"].c["authorid"]==hap_id
+            ).distinct()
+
+            for pa_row in self.src_engine.execute(paperauthor_query):
+
+                data["paperauthor_name"] = pa_row["name"]
+                data["paperauthor_affiliation"] = pa_row["affiliation"]
+
+                paper_row = self.src_engine.execute(sql.select([
+                    self.src_meta.tables["paper"]
+                ]).where(
+                    self.src_meta.tables["paper"].c["id"]==pa_row["paperid"]
+                )).fetchall()
+
+                if not paper_row:
+                    continue
+                paper_row = paper_row[0]
+
+                data["keyword"] = paper_row["keyword"]
+                data["title"] = paper_row["title"]
+                data["year"] = paper_row["year"]
+
+                if paper_row["journalid"]:
+                    journal_row = self.src_engine.execute(sql.select([
+                        self.src_meta.tables["journal"]
+                    ]).where(
+                        self.src_meta.tables["journal"].c["id"]==paper_row["journalid"]
+                    )).fetchall()
+
+                    if journal_row:
+                        data["journal_shortname"] = journal_row[0]["shortname"]
+                        data["journal_fullname"] = journal_row[0]["fullname"]
+                        data["journal_homepage"] = journal_row[0]["homepage"]
+
+                if paper_row["conferenceid"]:
+                    conference_row = self.src_engine.execute(sql.select([
+                        self.src_meta.tables["conference"]
+                    ]).where(
+                        self.src_meta.tables["conference"].c["id"]==paper_row["conferenceid"]
+                    )).fetchall()
+
+                    if conference_row:
+                        data["conference_shortname"] = conference_row[0]["shortname"]
+                        data["conference_fullname"] = conference_row[0]["fullname"]
+                        data["conference_homepage"] = conference_row[0]["homepage"]
+
+                for flag in ["validpaper", "traindeleted", "trainconfirmed"]:
+                    flag_row = self.src_engine.execute(sql.select([
+                            self.src_meta.tables[flag]
+                        ]).where(
+                            (self.src_meta.tables[flag].c["paperid"]==paper_row["id"]) &
+                            (self.src_meta.tables[flag].c["authorid"]==hap_id)
+                        )).fetchall()
+                    data[flag] = bool(flag_row)
+
+                yield dom.Fact(hap_id, **data)
 
 
 #===============================================================================

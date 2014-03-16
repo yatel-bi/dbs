@@ -1,27 +1,20 @@
 Padrón  Contribuyentes AFIP
 ===========================
 
-Este proyecto crea OLAPNW con los datos del padrón electoral del AFIP.
+Este proyecto crea OLAPNW con los datos del KDD CUP:
+http://www.kaggle.com/c/kdd-cup-2013-author-paper-identification-challenge/data
 
 Descripción de la red
 ---------------------
 
-La red esta estructurada de tal forma que cada haplotipo (nodo) es uno de los
-posibles combinaciones de los impuestos IVA y Ganancias.
-
-(Los valores posibles de cada uno de estos impuestos se listan en
-http://www.sistemasagiles.com.ar/trac/wiki/PadronContribuyentesAFIP#M%C3%A9todos)
-
-La red es totalmente conectada y el peso de cada arco esta dado por la distancia
-de Hamming de cada nodo
-
-Los hechos, por otra parte, son una copia de la base datos original enlazados
-a los haplotipos.
-
-El **hap_id** es una string dividido a por un guion bajo ``_``:
-    - Primer mitad: estado del impuesto IVA.
-    - Segunda mitad: Estado del impuesto a las ganancias.
-
+- La red esta estructurada de tal forma que cada haplotipo (nodo) es uno de los
+  autores de la tabla ``author``.
+- Los ``hap_id`` son los *id* de la tabla ``author``
+- La red conecta solo los authores que tienen papers en comun, y el peso de los
+  arcos es la cantidad de papers que desarrollaron en comun.
+- Los hechos son un resumen de las demas tablas.
+- Las tablas ``validpaper``, ``traindeleted`` y ``trainconfirmed`` se convierten
+  en bools
 
 
 Salida de describe
@@ -29,38 +22,18 @@ Salida de describe
 
 .. code-block:: python
 
-    {
-        'edge_attributes': {u'max_nodes': 2, u'weight': <type 'float'>},
-        'fact_attributes': {u'actividad_monotributo': <type 'str'>,
-                            u'cuit': <type 'long'>,
-                            u'denominacion': <type 'str'>,
-                            u'empleador': <type 'str'>,
-                            u'hap_id': <type 'str'>,
-                            u'imp_ganancias': <type 'str'>,
-                            u'imp_iva': <type 'str'>,
-                            u'integrante_soc': <type 'str'>,
-                            u'monotributo': <type 'str'>},
-        'haplotype_attributes': {u'hap_id': <type 'str'>,
-                                 u'imp_ganancias': <type 'str'>,
-                                 u'imp_iva': <type 'str'>},
-        'mode': 'r',
-        'size': {u'edges': 276, u'facts': 4105258, u'haplotypes': 24}
-    }
+Instrucciones
+-------------
 
+#. Descargar el dump de la db de la pagina de la competencia.
+#. Restaurar la base en un postgres
+#. Correr el ETL pasandole como argumetno la coneccion al postgres que se
+   restauró
 
 Archivos
 --------
 
-    - ``lib/padron.py``: Conector del padrón electoral parte del proyecto
-      PyAfipWs_. Todos los datos son públicos brindados por el AFIP.
-    - ``lib/utils.py`` usado por padron.py y tambien parte de PyAfipWs_.
-    - ``padronafip_etl.py`` ETL que genera la red basada en el padrón utilizando
-      ``lib/padron.py``
-    - ``padron_afip.yjf`` NW-OLAP generada con el etl. (CONGELADA AL 2014-02-16)
-    - ``padron_afip.yxf.zip`` NW-OLAP en formato YXF (Yatel XML Format)
+    - ``papers_etl.py`` ETL que genera la red basada en el db generada.
+    - ``papers.yxf.zip`` NW-OLAP en formato YXF (Yatel XML Format)
       comprimida.
-
-
-
-.. _ PyAfipWs: http://www.sistemasagiles.com.ar/trac/wiki/PyAfipWs
 

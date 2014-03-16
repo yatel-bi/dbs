@@ -1,14 +1,13 @@
 Padrón  Contribuyentes AFIP
 ===========================
 
-Este proyecto crea OLAPNW con los datos del KDD CUP:
-    http://www.kaggle.com/c/kdd-cup-2013-author-paper-identification-challenge/data
+Este proyecto crea OLAPNW con los datos del padrón electoral del AFIP.
 
 Descripción de la red
 ---------------------
 
 La red esta estructurada de tal forma que cada haplotipo (nodo) es uno de los
-
+posibles combinaciones de los impuestos IVA y Ganancias.
 
 (Los valores posibles de cada uno de estos impuestos se listan en
 http://www.sistemasagiles.com.ar/trac/wiki/PadronContribuyentesAFIP#M%C3%A9todos)
@@ -57,9 +56,8 @@ Archivos
     - ``lib/utils.py`` usado por padron.py y tambien parte de PyAfipWs_.
     - ``padronafip_etl.py`` ETL que genera la red basada en el padrón utilizando
       ``lib/padron.py``
-    - ``padron_afip.yjf`` NW-OLAP generada con el etl. (CONGELADA AL 2014-02-16)
     - ``padron_afip.yxf.zip`` NW-OLAP en formato YXF (Yatel XML Format)
-      comprimida.
+      comprimida. (CONGELADA AL 2014-02-16)
 
 
 
