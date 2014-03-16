@@ -27,7 +27,7 @@ Instrucciones
 
 #. Descargar el dump de la db de la pagina de la competencia.
 #. Restaurar la base en un postgres
-#. Correr el ETL pasandole como argumetno la coneccion al postgres que se
+#. Correr el ETL pasandole como argumento la conexión al postgres que se
    restauró
 
 Archivos
